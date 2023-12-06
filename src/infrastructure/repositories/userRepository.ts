@@ -20,8 +20,8 @@ class UserRepository implements UserRepo{
         return user;
     }
 
-    async deleteUser(id: string): Promise<unknown> {
-        const deletedUser = await UserModel.findByIdAndDelete(id);
+    async deleteUser(_id: string): Promise<unknown> {
+        const deletedUser = await UserModel.findByIdAndDelete(_id);
         return deletedUser;
     }
 
