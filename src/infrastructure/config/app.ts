@@ -29,6 +29,10 @@ export const createServer = () => {
     //* test
     console.log(path.join(__dirname, "/public")); //TODO: remove this line after test
 
+    app.get("/", (_req: Request, res: Response) => {
+      res.send("Hello World");
+    });
+
     // app.use("/api/user", );
     // app.use("/api/blog");
 
@@ -40,6 +44,7 @@ export const createServer = () => {
 
     return app;
   } catch (error) {
-    console.log(error.message);
+    const err: Error = error as Error;
+    console.log(err.message);
   }
 };
