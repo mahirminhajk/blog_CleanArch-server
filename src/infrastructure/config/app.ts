@@ -4,6 +4,9 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
+//* interface
+import IErrorObject from "../../useCases/interfaces/IErrorObject";
+
 //* config dotenv
 dotenv.config();
 
@@ -36,10 +39,11 @@ export const createServer = () => {
     // app.use("/api/user", );
     // app.use("/api/blog");
 
-    app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-      console.log(err);
-      const message: String = err.message || "Internal Server Error";
-      res.status(500).send({ message });
+    app.use((err:IErrorObject, _req: Request, res: Response, _next: NextFunction) => {
+      const { statusCode,error } = err;
+      const status = statusCode || 500;
+      const message: String = error.message || "Internal Server Error";
+      res.status(status).send({ message});
     });
 
     return app;

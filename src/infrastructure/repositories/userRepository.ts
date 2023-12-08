@@ -20,6 +20,11 @@ class UserRepository implements UserRepo{
         return user;
     }
 
+    async getUserByUsername(username: string): Promise<IUser | null> {
+        const user = await UserModel.findOne({username: username});
+        return user;
+    }
+
     async deleteUser(_id: string): Promise<unknown> {
         const deletedUser = await UserModel.findByIdAndDelete(_id);
         return deletedUser;
@@ -31,3 +36,5 @@ class UserRepository implements UserRepo{
     }
 
 }
+
+export default UserRepository;
