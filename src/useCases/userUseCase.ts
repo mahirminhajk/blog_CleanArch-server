@@ -4,53 +4,74 @@ import IUser from "../domain/entities/user";
 import UserRepository from "../infrastructure/repositories/userRepository";
 //* services
 import BcryptPassword from "../infrastructure/services/bcryptPassword";
+import CustomError from "../infrastructure/services/customError";
 import JWTToken from "../infrastructure/services/generateToken";
+import Validator from "../infrastructure/services/validator";
 
 class UserUseCase {
   private userRepository: UserRepository;
   private bcryptPassword: BcryptPassword;
   private jwtToken: JWTToken;
+  private validator: Validator;
 
   constructor(
     UserRepository: UserRepository,
     BcryptPassword: BcryptPassword,
-    JWTToken: JWTToken
+    JWTToken: JWTToken,
+    Validator: Validator
   ) {
     this.userRepository = UserRepository;
     this.bcryptPassword = BcryptPassword;
+    this.validator = Validator;
     this.jwtToken = JWTToken;
   }
 
-  async checkUserExistsEmail(email: string):Promise<boolean> {
-    //* check if user already exists
-    const userExists = await this.userRepository.getUserByEmail(email);
-    if (userExists) return true;
-    return false;
+  validateAndCreateUser(user: IUser): Promise<IUser | CustomError> {
+    return new Promise(async (reslove, reject) => {
+      //* validate email
+      const isGoodEmail = this.validator.isGoodEmail(user.email);
+      if (!isGoodEmail)
+        return reject(new CustomError("Please Provide a Valid Email", 422));
+
+      //* check if the email already in db
+      const emailExists = await this.userRepository.getUserByEmail(user.email);
+      if (emailExists)
+        return reject(
+          new CustomError("User already exists, Please Try to Login", 409)
+        );
+
+      if (user.password === undefined)
+        return reject(new CustomError("Please Provide a Valid Password", 422));
+
+      //* validate password
+      const isGoodPassword = this.validator.isGoodPassword(user.password);
+      if (!isGoodPassword)
+        return reject(new CustomError("Please Provide a Valid Password", 422));
+
+      //* hash password
+      const hashPassword: string = await this.bcryptPassword.hashPassword(
+        user.password
+      );
+
+      //* create user
+      const newUser = await this.userRepository.createUser({
+        name: user.name,
+        email: user.email,
+        password: hashPassword,
+      });
+
+      //*reslove
+      return reslove({
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+      });
+    });
   }
 
-  async checkUsernameExists(username: string):Promise<boolean> {
-    //* check if user already exists
-    const userExists = await this.userRepository.getUserByUsername(username);
-    if (userExists) return true;
-    return false;
+  createAccessToken(user: IUser) {
+    
   }
-
-  async hashPassword(password: string):Promise<string> {
-    //* hash password
-    const hashedPassword = await this.bcryptPassword.hashPassword(password);
-    return hashedPassword;
-  }
-
-  async comparePassword(password:string, hashPassword: string):Promise<boolean> {
-    //* compare password
-    const comparedPassword = await this.bcryptPassword.comparePassword(password, hashPassword);
-    return comparedPassword;
-  }
-
-  
-
-
-
 }
 
 export default UserUseCase;

@@ -4,8 +4,12 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
+//*routes
+import userRoute from '../routes/userRoute'
+import blogRoute from '../routes/blogRoute'
+
 //* interface
-import IErrorObject from "../../useCases/interfaces/IErrorObject";
+
 
 //* config dotenv
 dotenv.config();
@@ -29,20 +33,16 @@ export const createServer = () => {
     app.use(express.static(path.join(__dirname, "/public")));
     app.use(cookieParser());
 
-    //* test
-    console.log(path.join(__dirname, "/public")); //TODO: remove this line after test
-
     app.get("/", (_req: Request, res: Response) => {
       res.send("Hello World");
     });
 
-    // app.use("/api/user", );
-    // app.use("/api/blog");
+    app.use("/api/user", userRoute);
+    app.use("/api/blog", blogRoute);
 
-    app.use((err:IErrorObject, _req: Request, res: Response, _next: NextFunction) => {
-      const { statusCode,error } = err;
-      const status = statusCode || 500;
-      const message: String = error.message || "Internal Server Error";
+    app.use((err:Error & {statusCode?: number}, _req: Request, res: Response, _next: NextFunction) => {
+      const status = err.statusCode || 500;
+      const message: String = err.message || "Internal Server Error";
       res.status(status).send({ message});
     });
 

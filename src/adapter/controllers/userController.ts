@@ -1,22 +1,28 @@
-import UserUseCase from "../../useCases/userUseCase";
 import { Request, Response, NextFunction } from "express";
+//*usercase
+import UserUseCase from "../../useCases/userUseCase";
+//*service
+// import CustomError from "../../infrastructure/services/customError";
 
 class UserController {
   private userUseCase: UserUseCase;
 
-  constructor(userUseCase: UserUseCase) {
-    this.userUseCase = userUseCase;
+  constructor(UserUseCase: UserUseCase) {
+    this.userUseCase = UserUseCase;
   }
 
-  async signUp(req: Request, res: Response, next:NextFunction){
+  async signUp(req: Request, res: Response, next: NextFunction) {
     try {
-        
+        const user = await this.userUseCase.validateAndCreateUser(req.body);
+        res.status(201).json({
+          message: "User Created",
+          result: user,
+        });
+
     } catch (error) {
-        const typedError = error as Error;
-        next(typedError);
+      next(error);
     }
   }
-
 }
 
 export default UserController;

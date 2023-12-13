@@ -1,13 +1,11 @@
-import IErrorObject from "../../useCases/interfaces/IErrorObject";
-import ICustomError from "../../useCases/interfaces/IcustomError";
+class CustomError extends Error {
+  statusCode: number;
 
-class CustomError implements ICustomError{
-    createError(status: number, message: string): IErrorObject {
-        const error: Error = new Error();
-        const statusCode = status || 500;
-        const obj = {
-            error, statusCode
-        }
-        return obj;
-    }
+  constructor(message: string, statusCode: number = 500) {
+    super(message);
+    this.statusCode = statusCode;
+    this.name = "CustomError";
+  }
 }
+
+export default CustomError;
