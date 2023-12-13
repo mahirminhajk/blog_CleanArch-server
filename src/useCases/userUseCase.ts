@@ -69,8 +69,20 @@ class UserUseCase {
     });
   }
 
-  createAccessToken(user: IUser) {
-    
+  createAccessToken(user: IUser): Promise<string | CustomError> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (user._id === undefined || user.name === undefined)
+          return reject(new CustomError("User Id or Name is undefined", 500));
+
+        const token = this.jwtToken.generateToken(user._id, user.name);
+        return resolve(token);
+      } catch (error) {
+        return reject(
+          new CustomError("Can't Generate Access Token, Server Error", 500)
+        );
+      }
+    });
   }
 }
 

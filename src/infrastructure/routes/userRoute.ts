@@ -9,7 +9,6 @@ import UserRepository from "../repositories/userRepository";
 import BcryptPassword from "../services/bcryptPassword";
 import JWTToken from "../services/generateToken";
 import Validator from "../services/validator";
-import CustomError from "../services/customError";
 
 //*service
 const bcryptPassword = new BcryptPassword();
@@ -27,5 +26,6 @@ const controller = new UserController(userUseCase);
 const router = express.Router();
 
 router.post('/singup',(req, res, next) => controller.signUp(req, res, next));
+router.post('/singin',(req, res, next) => controller.login(req, res, next));
 
 export default router;
