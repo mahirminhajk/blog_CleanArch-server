@@ -1,5 +1,5 @@
-interface JWT{
-    generateToken(_id:string, name: string): string;
+interface JWT {
+    generateToken(_id: string, name: string): string;
     verifyToken(token: string): string | object;
 }
 

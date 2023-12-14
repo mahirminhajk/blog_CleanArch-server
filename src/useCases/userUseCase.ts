@@ -69,6 +69,51 @@ class UserUseCase {
     });
   }
 
+  loginUser(user: IUser): Promise<IUser | CustomError> {
+    return new Promise(async (resolve, reject) => {
+      //* check the email and password available in the request
+      if (user.email === undefined || user.password === undefined)
+        return reject(new CustomError("Please Provide Email and Password", 422));
+
+      //* check if the email already in db
+      const userExists = await this.userRepository.getUserByEmail(user.email);
+      if (!userExists)
+        return reject(new CustomError("User Not Found, Please Sign Up", 404));
+
+      //* check password
+      const isPasswordMatch = await this.bcryptPassword.comparePassword(
+        user.password,
+        userExists.password!
+      );
+      if (!isPasswordMatch)
+        return reject(new CustomError("Email or Password are incorrect", 401));
+
+
+      //* reslove
+      return resolve({
+        _id: userExists._id,
+        name: userExists.name,
+        email: userExists.email,
+      });
+    });
+  }
+
+  logoutUser(token: string): Promise<boolean | CustomError> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        //* verify token
+        const user = await this.verifyAccessToken(token);
+        if (user instanceof CustomError) return reject(user);
+
+        //* reslove
+        return resolve(true);
+
+      } catch (error) {
+        return reject(new CustomError("Can't Logout, Server Error", 500));
+      }
+    });
+  }
+
   createAccessToken(user: IUser): Promise<string | CustomError> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -84,6 +129,23 @@ class UserUseCase {
       }
     });
   }
+
+  verifyAccessToken(token: string): Promise<IUser | CustomError> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const user = this.jwtToken.verifyToken(token);
+
+        if (typeof user === "string")
+          return reject(new CustomError("Invalid Token", 401));
+
+        return resolve(user as IUser);
+
+      } catch (error) {
+        return reject(new CustomError("Invalid Token", 401));
+      }
+    });
+  }
+
 }
 
 export default UserUseCase;

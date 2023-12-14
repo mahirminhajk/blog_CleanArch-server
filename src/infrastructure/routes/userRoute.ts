@@ -25,7 +25,11 @@ const controller = new UserController(userUseCase);
 
 const router = express.Router();
 
-router.post('/singup',(req, res, next) => controller.signUp(req, res, next));
-router.post('/singin',(req, res, next) => controller.login(req, res, next));
+//*auth
+router.post('/singup', (req, res, next) => controller.signUp(req, res, next));
+router.post('/singin', (req, res, next) => controller.login(req, res, next));
+router.get('/logout', (req, res, next) => controller.logout(req, res, next));
+router.get('/verify', (req, res, next) => controller.verifyToken(req, res, next));
+
 
 export default router;
