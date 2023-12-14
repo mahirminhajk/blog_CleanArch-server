@@ -1,14 +1,18 @@
-import {Router} from 'express';
+import { Router } from 'express';
 import BlogController from '../../adapter/controllers/blogController';
 import BlogUseCase from '../../useCases/blogUseCase';
+import BlogRepository from '../repositories/blogRepository';
+import MulterImgUploader from '../services/multerImgUploader';
 
+const blogRepository = new BlogRepository();
+const imgUploader = new MulterImgUploader();
 
-const blogUseCase = new BlogUseCase();
+const blogUseCase = new BlogUseCase(blogRepository, imgUploader);
 
-const controller = new BlogController(blogUseCase); 
+const controller = new BlogController(blogUseCase);
 
 const router = Router();
 
-router.get("/", (req, res, next) => controller.getBlogs(req, res, next));
+router.post("/", imgUploader.upload.single("img"), (req, res, next) => controller.getName(req, res, next));
 
 export default router;

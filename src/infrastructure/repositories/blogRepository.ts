@@ -2,7 +2,7 @@ import IBlog from "../../domain/entities/blog";
 import BlogModel from "../database/blogModel";
 import BlogRepo from "../../useCases/interfaces/blogRepo";
 
-class BlogRepository implements BlogRepo{
+class BlogRepository implements BlogRepo {
 
     async createBlog(blog: IBlog): Promise<IBlog> {
         const newBlog = new BlogModel(blog);
@@ -14,7 +14,7 @@ class BlogRepository implements BlogRepo{
     }
 
     async getBlogByTitle(title: string): Promise<IBlog | null> {
-        return await BlogModel.findOne({title});
+        return await BlogModel.findOne({ title });
     }
 
     async deleteBlog(_id: string): Promise<unknown> {
@@ -25,3 +25,5 @@ class BlogRepository implements BlogRepo{
         return await BlogModel.find();
     }
 }
+
+export default BlogRepository;

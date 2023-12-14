@@ -30,7 +30,7 @@ export const createServer = () => {
 
     app.use(express.json({ limit: "10mb" }));
     app.use(express.urlencoded({ extended: true }));
-    app.use(express.static(path.join(__dirname, "/public")));
+    app.use(express.static(path.join(__dirname, "../public")));
     app.use(cookieParser());
 
     app.get("/", (_req: Request, res: Response) => {
@@ -40,10 +40,10 @@ export const createServer = () => {
     app.use("/api/user", userRoute);
     app.use("/api/blog", blogRoute);
 
-    app.use((err:Error & {statusCode?: number}, _req: Request, res: Response, _next: NextFunction) => {
+    app.use((err: Error & { statusCode?: number }, _req: Request, res: Response, _next: NextFunction) => {
       const status = err.statusCode || 500;
       const message: String = err.message || "Internal Server Error";
-      res.status(status).send({ message});
+      res.status(status).send({ message });
     });
 
     return app;
